@@ -33,10 +33,6 @@ function H5mergeFiles(targetFile,files;Groups = 1:length(files))
     end
 end
 
-function getSourceFilesWith(key::String,Dir::String)
-    Dir .* filter!(x -> occursin(key,x), readdir(Dir))
-end
-
 allOccurIn(name,args...) = all((occursin(arg,name) for arg in args))
 findNames(names,args...) = findall(x->allOccurIn(x,args...),names)
 NameFilter(names,args...) = filter(x->allOccurIn(x,args...),names)
