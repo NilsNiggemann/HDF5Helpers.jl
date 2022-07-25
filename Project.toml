@@ -1,0 +1,4 @@
+name = "HDF5Helpers"
+uuid = "2867bddc-101e-43c9-836d-7ce2d0afa337"
+authors = ["Nils Niggemann <nils.niggemann@fu-berlin.de>"]
+version = "0.1.0"
