@@ -17,7 +17,7 @@ function h5Merge(target::String,origin::String,Groups=h5keys(origin);MainGroup =
         for key in Groups
             data = read(f[key])
             try
-                h5write(target,MainGroup *"/"*key,data)
+                h5write(target, joinGroup(MainGroup,key),data)
             catch e
                 @warn "Merging of field $key errored with exception :\n $e "
             end
@@ -25,13 +25,16 @@ function h5Merge(target::String,origin::String,Groups=h5keys(origin);MainGroup =
     end
 end
 
-function H5mergeFiles(targetFile,files;Groups = 1:length(files))
-
-    for (i,f) in enumerate(files)
-        h5Merge(targetFile,f,MainGroup = Groups[i])
+function H5mergeFiles(targetFile,files;Groups = (nothing for _ in files))
+    fntemp = mkpath(joinpath(dirname(targetFile),"temp/"))
+    for (i,(f,MainGroup)) in enumerate(zip(files,Groups))
+        h5Merge(targetFile,f;MainGroup)
         mv(f,joinpath(fntemp,basename(f)))
     end
 end
+
+joinGroup(args...) = join(args,"/")
+joinGroup(::Nothing,args...) = join(args)
 
 allOccurIn(name,args...) = all((occursin(arg,name) for arg in args))
 findNames(names,args...) = findall(x->allOccurIn(x,args...),names)

@@ -23,8 +23,6 @@ function readLastGroupElements(File,key)
     end
 end
 
-joinGroup(args...) = join(args,"/")
-
 function getReadablekeys(fn)
     k = h5open(fn) do f
         ks = keys(f)
