@@ -1,8 +1,17 @@
+function h5keys(f,Group::String ="")
+    isempty(Group) && return keys(f)
+    return keys(f[Group])
+end
+
 function h5keys(Filename::String,Group::String ="")
     h5open(Filename,"r") do f
-        isempty(Group) && return keys(f)
-        return keys(f[Group])
+        h5keys(f,Group)
     end
+end
+
+function getKeyswith(f,key::String,Group = "")
+    keys = h5keys(f,Group)
+    filter!(x->occursin(key,x),keys)
 end
 
 """Fetches key from file for each group and appends results to a list"""
