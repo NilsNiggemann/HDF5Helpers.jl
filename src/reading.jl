@@ -1,6 +1,7 @@
-function h5keys(Filename::String)
+function h5keys(Filename::String,Group::String ="")
     h5open(Filename,"r") do f
-        return keys(f)
+        isempty(Group) && return keys(f)
+        return keys(f[Group])
     end
 end
 
