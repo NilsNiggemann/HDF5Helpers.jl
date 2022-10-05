@@ -5,10 +5,14 @@ function h5keys(Filename::String)
 end
 
 """Fetches key from file for each group and appends results to a list"""
-function readGroupElements(File,key)
+function readGroupElements(File::AbstractString,key)
     h5open(File,"r") do f
-        return [Array(f[string(Group,"/",key)]) for Group in keys(f)]
+        readGroupElements(f,key)
     end
+end
+
+function readGroupElements(f::HDF5.File,key)
+    return [Array(f[string(Group,"/",key)]) for Group in keys(f)]
 end
 
 function ArrayReadGroupElements(File,key)
@@ -17,13 +21,18 @@ function ArrayReadGroupElements(File,key)
     return cat(Data...,dims = d+1)
 end
 
-function readLastGroupElements(File,key)
+function readLastGroupElements(File::AbstractString,key)
     h5open(File,"r") do f
-        return VectorOfArray([ Array(f[string(Group,"/",key)])[end,..] for Group in keys(f)]) #using EllipsisNotation to get index in first dimension
+        readLastGroupElements(f,key)
     end
 end
 
-function getReadablekeys(fn)
+function readLastGroupElements(f,key)
+    return VectorOfArray([ Array(f[string(Group,"/",key)])[end,..] for Group in keys(f)]) #using EllipsisNotation to get index in first dimension
+end
+
+
+function getReadablekeys(fn::AbstractString)
     k = h5open(fn) do f
         ks = keys(f)
         readableIndices = Int[]
@@ -38,7 +47,7 @@ function getReadablekeys(fn)
     end
 end
 
-function repairHDF5File(fn,newfile = fn)
+function repairHDF5File(fn::AbstractString,newfile = fn)
     dir = dirname(fn)
     mkpath(dir*"/temp")
     
