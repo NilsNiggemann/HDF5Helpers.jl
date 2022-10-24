@@ -12,26 +12,31 @@ end
 
 HDF5.h5write(filename::String,Data::Dict) = HDF5.h5write(filename::String,"",Data::Dict)
 
-function h5Merge(target::String,origin::String,Groups=h5keys(origin);MainGroup = "")
-    h5open(origin,"r") do f
-        for key in Groups
-            data = read(f[key])
-            try
-                h5write(target, joinGroup(MainGroup,key),data)
-            catch e
-                @warn "Merging of field $key errored with exception :\n $e "
-            end
-        end
+recursive_merge(x::AbstractDict...) = merge(recursive_merge, x...)
+recursive_merge(x::AbstractVector...) = cat(x...; dims=1)
+recursive_merge(x...) = x[end]
+
+function h5merge(target::String,files,MainGroups = nothing)
+    
+    dicts0 = read.(h5open.(files))
+    dicts =
+    if MainGroups === nothing
+        dicts0
+    elseif length(MainGroups) == length(files)
+        dicts = [Dict([MG => d,]) for (MG,d) in zip(MainGroups,dicts0)]
+    else
+        error("could not merge files using specified groups!")
     end
+    dict = recursive_merge(dicts...)
+    h5write(target,dict)
 end
 
 function H5mergeFiles(targetFile,files;Groups = (nothing for _ in files))
-    fntemp = mkpath(joinpath(dirname(targetFile),"temp/"))
-    for (i,(f,MainGroup)) in enumerate(zip(files,Groups))
+    for (f,MainGroup) in zip(files,Groups)
         h5Merge(targetFile,f;MainGroup)
-        mv(f,joinpath(fntemp,basename(f)))
     end
 end
+
 
 joinGroup(args...) = join(args,"/")
 joinGroup(::Nothing,args...) = join(args)
