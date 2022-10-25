@@ -40,7 +40,7 @@ function readGroupElements(File::AbstractString,key)
     end
 end
 
-function readGroupElements(f::HDF5.File,key)
+function readGroupElements(f::HDF5.H5DataStore,key)
     return [Array(f[string(Group,"/",key)]) for Group in keys(f)]
 end
 
