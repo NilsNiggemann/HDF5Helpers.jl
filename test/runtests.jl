@@ -39,5 +39,15 @@ let
         end
     end
 
-    # return read(h5open(file2))
+    @testset "h5keys" begin
+        @test h5keys(targetfile2) == ["1","2"]
+        @test h5keys(targetfile2,1) == h5keys(targetfile2,"1") 
+        @test h5keys(targetfile2,2,1) == h5keys(targetfile2,"2/Group1")
+    end
+    @testset "getKeyswith" begin
+        @test getKeyswith(file1,"1") == ["Group1"]
+        @test getKeyswith(file1,"0.","Group1") == ["0.2","0.3"]
+    end
+
 end
+

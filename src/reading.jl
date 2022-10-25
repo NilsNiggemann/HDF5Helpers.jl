@@ -9,8 +9,27 @@ function h5keys(Filename::String,Group::String ="")
     end
 end
 
-function getKeyswith(f,key::String,Group = "")
-    keys = h5keys(f,Group)
+function h5keys(File,Group::Int)
+    GroupStr = h5keys(File)[Group]
+    h5keys(File,GroupStr)
+end
+
+function h5path(File,Groups::Int...)
+    FullGroupStr = ""
+    for g in Groups
+        GroupStr = h5keys(File,FullGroupStr)[g]
+        FullGroupStr = FullGroupStr*"/"*GroupStr
+    end
+    return FullGroupStr
+end
+
+function h5keys(File,Groups::Int...)
+    FullGroupStr = h5path(File,Groups...)
+    h5keys(File,FullGroupStr)
+end
+
+function getKeyswith(f,key::String,Groups...)
+    keys = h5keys(f,Groups...)
     filter!(x->occursin(key,x),keys)
 end
 
