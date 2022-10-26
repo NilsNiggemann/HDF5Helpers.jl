@@ -86,3 +86,15 @@ function repairHDF5File(fn::AbstractString,newfile = fn)
     readablekeys = getReadablekeys(tempfile)
     h5Merge(newfile,tempfile,readablekeys)
 end
+
+function getFilesFromSubDirs(Folder::String)
+    allpaths = collect(walkdir(Folder))
+    Files = String[]
+    for p in allpaths
+        for filename in p[end]
+            pathAndName = joinpath(p[begin],filename)
+            push!(Files,pathAndName)
+        end
+    end
+    return Files
+end
