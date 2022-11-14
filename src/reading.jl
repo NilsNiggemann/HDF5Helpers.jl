@@ -1,3 +1,11 @@
+
+getNamedTuple(D) = D
+getNamedTuple(D::AbstractDict) = NamedTuple(Symbol(k) => getNamedTuple(v) for (k,v) in D)
+
+h5readFile(filename::AbstractString,Group = "/") = h5open(filename) do f 
+    read(f[Group])
+end
+
 function h5keys(f,Group::String ="")
     isempty(Group) && return keys(f)
     return keys(f[Group])
@@ -98,3 +106,4 @@ function getFilesFromSubDirs(Folder::String)
     end
     return Files
 end
+
