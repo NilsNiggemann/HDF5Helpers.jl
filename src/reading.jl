@@ -58,19 +58,8 @@ function ArrayReadGroupElements(File,key)
     return cat(Data...,dims = d+1)
 end
 
-function readLastGroupElements(File::AbstractString,key)
-    h5open(File,"r") do f
-        readLastGroupElements(f,key)
-    end
-end
-
-function readLastGroupElements(f,key)
-    return VectorOfArray([ Array(f[string(Group,"/",key)])[end,..] for Group in keys(f)]) #using EllipsisNotation to get index in first dimension
-end
-
-
 function getReadablekeys(fn::AbstractString)
-    k = h5open(fn) do f
+    h5open(fn) do f
         ks = keys(f)
         readableIndices = Int[]
         for i in eachindex(ks)
@@ -86,13 +75,16 @@ end
 
 function repairHDF5File(fn::AbstractString,newfile = fn)
     dir = dirname(fn)
-    mkpath(dir*"/temp")
+    temppath = joinpath(dir,"temp")
+    mkpath(temppath)
     
-    tempfile = joinpath(dir,"temp/",basename(fn))
+    tempfile = joinpath(temppath,basename(fn))
+    readablekeys = getReadablekeys(fn)
     mv(fn,tempfile)
-    
-    readablekeys = getReadablekeys(tempfile)
-    h5Merge(newfile,tempfile,readablekeys)
+    f_dict = h5open(tempfile) do f
+        Dict([k=>read(f[k]) for k in readablekeys])
+    end
+    h5write(newfile,f_dict)
 end
 
 function getFilesFromSubDirs(Folder::String)

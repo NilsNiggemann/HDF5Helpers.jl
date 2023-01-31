@@ -18,7 +18,7 @@ recursive_merge(x...) = x[end]
 
 function h5merge(target::String,files,MainGroups = nothing)
     
-    dicts0 = read.(h5open.(files))
+    dicts0 = h5readFile.(files)
     dicts =
     if MainGroups === nothing
         dicts0
